@@ -46,6 +46,7 @@ RUN apt-get update && apt-get install docker-ce -y
 
 RUN  usermod -a -G docker go
 RUN  usermod -a -G root go
+RUN  echo "go ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 ADD docker-entrypoint.sh /
 
