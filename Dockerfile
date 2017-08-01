@@ -40,6 +40,7 @@ RUN \
 # add our user and group first to make sure their IDs get assigned consistently,
 # regardless of whatever dependencies get added
   addgroup -g 1001 go && \ 
+  addgroup -G docker go && \ 
   adduser -D -u 1001 -G go go && \
   apk --update-cache upgrade && \ 
   apk add --update-cache openjdk8-jre-base git mercurial subversion openssh-client bash && \
