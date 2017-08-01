@@ -11,6 +11,7 @@ ADD https://github.com/tianon/gosu/releases/download/1.10/gosu-amd64 /usr/local/
 # allow mounting ssh keys, dotfiles, and the go server config and data
 VOLUME /godata
 
+# force encoding
 ENV LANG=en_US.utf8
 
 RUN \
@@ -21,17 +22,18 @@ RUN \
   chown root:root /usr/local/sbin/gosu && \
 # add our user and group first to make sure their IDs get assigned consistently,
 # regardless of whatever dependencies get added
-  addgroup -g 1001 go && \ 
-  adduser -D -u 1001 -G go go && \
+  groupadd -g 1000 go && \ 
+  useradd -u 1000 -g go -d /home/go -m go && \
   usermod -a -G docker go
-  apk --update-cache upgrade && \ 
-  apk add --update-cache openjdk8-jre-base git mercurial subversion openssh-client bash && \
+  echo deb 'http://ppa.launchpad.net/openjdk-r/ppa/ubuntu xenial main' > /etc/apt/sources.list.d/openjdk-ppa.list && \ 
+  apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DA1A4A13543B466853BAF164EB9B1D8886F44E2A && \ 
+  apt-get update && \ 
+  apt-get install -y openjdk-8-jre-headless git subversion mercurial openssh-client bash unzip && \ 
+  apt-get autoclean && \
 # unzip the zip file into /go-agent, after stripping the first path prefix
   unzip /tmp/go-agent.zip -d / && \
   mv go-agent-17.7.0 /go-agent && \
   rm /tmp/go-agent.zip
-
-ADD docker-entrypoint.sh /
 
 RUN apt-get update && \
   apt-get install \
