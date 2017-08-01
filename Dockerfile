@@ -53,6 +53,8 @@ RUN apt-get update && apt-get install docker-ce -y
 
 RUN  usermod -a -G docker go
 
+ADD docker-entrypoint.sh /
+
 RUN ["chmod", "+x", "/docker-entrypoint.sh"]
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
