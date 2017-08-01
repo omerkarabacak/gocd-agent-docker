@@ -1,8 +1,3 @@
-FROM docker
-
-# will be building docker images
-
-
 FROM node:alpine
 
 LABEL gocd.version="17.7.0" \
@@ -18,6 +13,20 @@ ADD https://github.com/tianon/gosu/releases/download/1.10/gosu-amd64 /usr/local/
 # allow mounting ssh keys, dotfiles, and the go server config and data
 VOLUME /godata
 
+ADD ./wrapdocker /usr/local/bin/wrapdocker
+
+# Install Docker and dependencies
+RUN apk --update add \
+  bash \
+  iptables \
+  ca-certificates \
+  e2fsprogs \
+  docker \
+  && chmod +x /usr/local/bin/wrapdocker \
+  && rm -rf /var/cache/apk/*
+
+# Define additional metadata for our image.
+VOLUME /var/lib/docker
 # force encoding
 ENV LANG=en_US.utf8
 
@@ -42,4 +51,5 @@ ADD docker-entrypoint.sh /
 
 RUN ["chmod", "+x", "/docker-entrypoint.sh"]
 
+ENTRYPOINT ["wrapdocker"]
 ENTRYPOINT ["/docker-entrypoint.sh"]
