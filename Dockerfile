@@ -1,18 +1,6 @@
-FROM node:alpine
+FROM alpine:latest
 
-LABEL gocd.version="17.7.0" \
-  description="GoCD agent based on alpine version 3.5" \
-  maintainer="GoCD <go-cd-dev@googlegroups.com>" \
-  gocd.full.version="17.7.0-5147" \
-  gocd.git.sha="53fdb1b15184f93966059a42429bf9ed0bfdee59"
-
-ADD "https://download.gocd.org/binaries/17.7.0-5147/generic/go-agent-17.7.0-5147.zip" /tmp/go-agent.zip
-ADD https://github.com/krallin/tini/releases/download/v0.14.0/tini-static-amd64 /usr/local/sbin/tini
-ADD https://github.com/tianon/gosu/releases/download/1.10/gosu-amd64 /usr/local/sbin/gosu
-
-# allow mounting ssh keys, dotfiles, and the go server config and data
-VOLUME /godata
-
+# Install the magic wrapper.
 ADD ./wrapdocker /usr/local/bin/wrapdocker
 
 # Install Docker and dependencies
@@ -27,7 +15,20 @@ RUN apk --update add \
 
 # Define additional metadata for our image.
 VOLUME /var/lib/docker
-# force encoding
+
+LABEL gocd.version="17.7.0" \
+  description="GoCD agent based on alpine version 3.5" \
+  maintainer="GoCD <go-cd-dev@googlegroups.com>" \
+  gocd.full.version="17.7.0-5147" \
+  gocd.git.sha="53fdb1b15184f93966059a42429bf9ed0bfdee59"
+
+ADD "https://download.gocd.org/binaries/17.7.0-5147/generic/go-agent-17.7.0-5147.zip" /tmp/go-agent.zip
+ADD https://github.com/krallin/tini/releases/download/v0.14.0/tini-static-amd64 /usr/local/sbin/tini
+ADD https://github.com/tianon/gosu/releases/download/1.10/gosu-amd64 /usr/local/sbin/gosu
+
+# allow mounting ssh keys, dotfiles, and the go server config and data
+VOLUME /godata
+
 ENV LANG=en_US.utf8
 
 RUN \
