@@ -24,7 +24,6 @@ RUN \
 # regardless of whatever dependencies get added
   groupadd -g 1000 go && \ 
   useradd -u 1000 -g go -d /home/go -m go && \
-  usermod -a -G docker go && \
   echo deb 'http://ppa.launchpad.net/openjdk-r/ppa/ubuntu xenial main' > /etc/apt/sources.list.d/openjdk-ppa.list && \ 
   apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DA1A4A13543B466853BAF164EB9B1D8886F44E2A && \ 
   apt-get update && \ 
@@ -40,7 +39,7 @@ RUN apt-get update && \
   apt-transport-https \
   ca-certificates \
   curl \
-  software-properties-common
+  software-properties-common -y
 
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
   apt-key fingerprint 0EBFCD88
@@ -50,7 +49,9 @@ RUN add-apt-repository \
    $(lsb_release -cs) \
    stable"
 
-RUN apt-get update && apt-get install docker-ce
+RUN apt-get update && apt-get install docker-ce -y
+
+RUN  usermod -a -G docker go
 
 RUN ["chmod", "+x", "/docker-entrypoint.sh"]
 
