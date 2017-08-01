@@ -1,25 +1,8 @@
-FROM alpine:latest
+FROM ubuntu:16.04
 
 LABEL gocd.version="17.7.0" \
-  description="GoCD agent based on alpine version 3.6" \
   gocd.full.version="17.7.0-5147" \
   gocd.git.sha="53fdb1b15184f93966059a42429bf9ed0bfdee59"
-
-# Install the magic wrapper.
-ADD ./wrapdocker /usr/local/bin/wrapdocker
-
-# Install Docker and dependencies
-RUN apk --update add \
-  bash \
-  iptables \
-  ca-certificates \
-  e2fsprogs \
-  docker \
-  && chmod +x /usr/local/bin/wrapdocker \
-  && rm -rf /var/cache/apk/*
-
-# Define additional metadata for our image.
-VOLUME /var/lib/docker
 
 ADD "https://download.gocd.org/binaries/17.7.0-5147/generic/go-agent-17.7.0-5147.zip" /tmp/go-agent.zip
 ADD https://github.com/krallin/tini/releases/download/v0.14.0/tini-static-amd64 /usr/local/sbin/tini
@@ -40,7 +23,7 @@ RUN \
 # regardless of whatever dependencies get added
   addgroup -g 1001 go && \ 
   adduser -D -u 1001 -G go go && \
-  adduser go docker && \
+  usermod -a -G docker go
   apk --update-cache upgrade && \ 
   apk add --update-cache openjdk8-jre-base git mercurial subversion openssh-client bash && \
 # unzip the zip file into /go-agent, after stripping the first path prefix
@@ -50,7 +33,23 @@ RUN \
 
 ADD docker-entrypoint.sh /
 
+RUN apt-get update && \
+  apt-get install \
+  apt-transport-https \
+  ca-certificates \
+  curl \
+  software-properties-common
+
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
+  apt-key fingerprint 0EBFCD88
+
+RUN add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+
+RUN apt-get update && apt-get install docker-ce
+
 RUN ["chmod", "+x", "/docker-entrypoint.sh"]
 
-ENTRYPOINT ["wrapdocker"]
 ENTRYPOINT ["/docker-entrypoint.sh"]
