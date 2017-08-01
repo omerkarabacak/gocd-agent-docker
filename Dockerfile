@@ -27,19 +27,12 @@ RUN \
   echo deb 'http://ppa.launchpad.net/openjdk-r/ppa/ubuntu xenial main' > /etc/apt/sources.list.d/openjdk-ppa.list && \ 
   apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DA1A4A13543B466853BAF164EB9B1D8886F44E2A && \ 
   apt-get update && \ 
-  apt-get install -y openjdk-8-jre-headless git subversion mercurial openssh-client bash unzip && \ 
+  apt-get install -y curl software-properties-common ca-certificates apt-transport-https openjdk-8-jre-headless git subversion mercurial openssh-client bash unzip sudo && \ 
   apt-get autoclean && \
 # unzip the zip file into /go-agent, after stripping the first path prefix
   unzip /tmp/go-agent.zip -d / && \
   mv go-agent-17.7.0 /go-agent && \
   rm /tmp/go-agent.zip
-
-RUN apt-get update && \
-  apt-get install \
-  apt-transport-https \
-  ca-certificates \
-  curl \
-  software-properties-common -y
 
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
   apt-key fingerprint 0EBFCD88
@@ -52,6 +45,7 @@ RUN add-apt-repository \
 RUN apt-get update && apt-get install docker-ce -y
 
 RUN  usermod -a -G docker go
+RUN  usermod -a -G root go
 
 ADD docker-entrypoint.sh /
 
