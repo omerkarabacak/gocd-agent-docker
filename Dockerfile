@@ -1,5 +1,10 @@
 FROM alpine:latest
 
+LABEL gocd.version="17.7.0" \
+  description="GoCD agent based on alpine version 3.6" \
+  gocd.full.version="17.7.0-5147" \
+  gocd.git.sha="53fdb1b15184f93966059a42429bf9ed0bfdee59"
+
 # Install the magic wrapper.
 ADD ./wrapdocker /usr/local/bin/wrapdocker
 
@@ -15,12 +20,6 @@ RUN apk --update add \
 
 # Define additional metadata for our image.
 VOLUME /var/lib/docker
-
-LABEL gocd.version="17.7.0" \
-  description="GoCD agent based on alpine version 3.5" \
-  maintainer="GoCD <go-cd-dev@googlegroups.com>" \
-  gocd.full.version="17.7.0-5147" \
-  gocd.git.sha="53fdb1b15184f93966059a42429bf9ed0bfdee59"
 
 ADD "https://download.gocd.org/binaries/17.7.0-5147/generic/go-agent-17.7.0-5147.zip" /tmp/go-agent.zip
 ADD https://github.com/krallin/tini/releases/download/v0.14.0/tini-static-amd64 /usr/local/sbin/tini
@@ -39,8 +38,9 @@ RUN \
   chown root:root /usr/local/sbin/gosu && \
 # add our user and group first to make sure their IDs get assigned consistently,
 # regardless of whatever dependencies get added
-  addgroup -S -g 1001 go && \ 
-  adduser -S -D -u 1001 -G go go && \
+  addgroup -g 1001 go && \ 
+  adduser -D -u 1001 -G go go && \
+  adduser go docker && \
   apk --update-cache upgrade && \ 
   apk add --update-cache openjdk8-jre-base git mercurial subversion openssh-client bash && \
 # unzip the zip file into /go-agent, after stripping the first path prefix
